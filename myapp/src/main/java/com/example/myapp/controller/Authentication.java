@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
+
+import com.example.myapp.dto.LoginRequest;
 import com.example.myapp.dto.SignupRequest;
 import com.example.myapp.model.User;
 import com.example.myapp.repo.UserRepository;
@@ -40,9 +42,41 @@ public class Authentication {
         return "signup sucess";
     }
 
+    @PostMapping("/login")
+    String loginApi(@RequestBody LoginRequest loginData) {
+        System.out.println(" email : " + loginData.getEmail());
+        System.out.println(" password : " + loginData.getPassword());
 
-  
+        User user = db.findByEmail(loginData.getEmail());
 
-  
+        if (user == null) {
+            return "User not found";
+        }
+
+        if (!user.getPassword().equals(loginData.getPassword())) {
+            return "Invalid password";
+        }
+
+        return "Login successful";
+    }
+
+    @GetMapping("/users")
+    List<User> getALLUsers() {
+        return db.findAll();
+    }
+
+    @PutMapping("/user/{id}")
+    String updatUser(@PathVariable Long id, @RequestBody SignupRequest sd) {
+        Optional<User> od = db.findById(id);
+        if (od.isEmpty()) {
+            return " user not found";
+        }
+        User user = od.get();
+        user.setEmail(sd.getEmail());
+        user.setPassword(sd.getPassword());
+        db.save(user);
+        return " updated user";
+
+    }
 
 }
